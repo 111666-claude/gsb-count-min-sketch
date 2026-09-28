@@ -22,12 +22,12 @@ go run ./cmd/count-min-sketch --items 'a,b,a,c,a,b' --merge-halves
 
 ## 现在的行为
 
-- `hash` 是 `len(item) % width`，每行都用同一个位置：同长度的条目互相污染，
-  `a,bb,cc,dd,ee`（width=8）给 `estimate(bb)=4`。
-- `Add` 对每一行无条件加一，没有保守更新。
-- `Merge` 返回 `ErrNoMerge`。
+- `hash` 用 FNV-1a 并把行号混进种子，不同行的落点互相独立；
+  `a,bb,cc,dd,ee`（width=8）现在给 `estimate(bb)=1`。
+- `Add` 保守更新：只把当前最小的那一行路径加一，其余行不动。
+- `Merge` 把两张同尺寸的表逐格相加；尺寸不同会报错并说明两边尺寸。
 
-## 计划新增的能力
+## 命令行参数
 
 ```
 --items 条目流      逗号分隔
